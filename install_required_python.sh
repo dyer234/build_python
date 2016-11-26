@@ -1,5 +1,8 @@
 
 
+set -e
+set -x
+
 PYTHON_MAJOR="3"
 PYTHON_MINOR="5"
 PYTHON_REVISION="2"
@@ -47,7 +50,7 @@ compile_python()
 create_virtual_environment()
 {
 	# make virtualenv
-	${python_install_location}python${PYTHON_MAJOR}.${PYTHON_MINOR} -m venv "${DIRECTORY_FOR_VENV}"
+	${python_install_location}/bin/python${PYTHON_MAJOR}.${PYTHON_MINOR} -m venv "${DIRECTORY_FOR_VENV}"
 	cd "${PROJECT_DIR}"
 	source venv/bin/activate
 	ls
