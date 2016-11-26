@@ -35,7 +35,7 @@ compile_python()
 	# install dependencies
 	sudo apt-get install build-essential
 	sudo apt-get install libssl-dev openssl libsqlite3-dev
-	
+
 	# compile python
 	tar -xzvf "$PYTHON_NAME.tgz"
 	cd $PYTHON_NAME
@@ -55,6 +55,7 @@ create_virtual_environment()
 	source venv/bin/activate
 	ls
 	python --version
+	pip install --upgrade pip
 }
 
 
