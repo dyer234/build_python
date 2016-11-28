@@ -1,7 +1,25 @@
+# A simple script to compile python on ubuntu.
+# It downloads the source directly from the python website and saves it to
+# a working directory. The working directory can be deleted after the script
+# was successful.
+#
+# By default, Python is installed to: /usr/local/bin, /usr/local/include, etc
+# This is overridden by adding the --prefix to .configure. So that the 
+# version is stored in a directory called PythonVersions inside the user Home
+# directory. To change this location back to default, just modify this 
+# --prefix variable to /usr/local.
+#
+# Usage:
+#     ./install_required_python.sh
+#
+# To change the version of Python that will be downloaded, just modify the
+# Python variables for major, minor, and revision for the version that is
+# needed.
+#
+# This script also creates a virtual environment, because anytime I need
+# a specific version of Python, its always because its going to for a 
+# preexisting project.
 
-
-set -e
-set -x
 
 PYTHON_MAJOR="3"
 PYTHON_MINOR="5"
