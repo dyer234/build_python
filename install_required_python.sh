@@ -22,8 +22,8 @@
 
 
 PYTHON_MAJOR="3"
-PYTHON_MINOR="5"
-PYTHON_REVISION="2"
+PYTHON_MINOR="3"
+PYTHON_REVISION="3"
 
 VERSION="$PYTHON_MAJOR.$PYTHON_MINOR.$PYTHON_REVISION"
 
@@ -65,15 +65,43 @@ compile_python()
  }
 
 
+# This is only needed for versions of Python less than 3.4 and 2.7.9,
+# but adding it covers the use case for other versions of python 3
+# and will always update pip. Also using virtualenv may be considered
+# less than ideal because venv is built into 3.4 and greater, but I 
+# prefer the full the copy of the python interpreter instead of the 
+# the symlinks and this is the most portable across versions
+update_pip_and_virtualenv() {
+
+	curl -O https://bootstrap.pypa.io/get-pip.py
+	
+	sudo ${python_install_location}/bin/python${PYTHON_MAJOR}.${PYTHON_MINOR} ./get-pip.py
+
+	sudo ${python_install_location}/bin/python${PYTHON_MAJOR}.${PYTHON_MINOR} -m pip install virtualenv
+
+}
+
+
 create_virtual_environment()
 {
+	sudo rm -rf ~/.cache/pip
+
 	# make virtualenv
-	${python_install_location}/bin/python${PYTHON_MAJOR}.${PYTHON_MINOR} -m venv "${DIRECTORY_FOR_VENV}"
-	cd "${PROJECT_DIR}"
+	${python_install_location}/bin/python${PYTHON_MAJOR}.${PYTHON_MINOR} -m virtualenv --always-copy "${DIRECTORY_FOR_VENV}"
+
 	source venv/bin/activate
 	ls
 	python --version
-	pip install --upgrade pip
+}
+
+
+# this was only installed to be able to create the virtual environment.
+# Now that the Virtual environment is set up, the custom python 
+# interpreter it was created from can be deleted because we used
+# the virtualenv option to --always-copy
+remove_custom_python_version() {
+
+	sudo rm -rf ${python_install_location} 
 }
 
 
@@ -86,7 +114,12 @@ main()
 
 	compile_python
 
+	update_pip_and_virtualenv
+
+	cd "${PROJECT_DIR}"
 	create_virtual_environment
+
+	remove_custom_python_version
 }
 
 
