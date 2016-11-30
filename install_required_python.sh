@@ -22,8 +22,8 @@
 
 
 PYTHON_MAJOR="3"
-PYTHON_MINOR="3"
-PYTHON_REVISION="3"
+PYTHON_MINOR="5"
+PYTHON_REVISION="2"
 
 VERSION="$PYTHON_MAJOR.$PYTHON_MINOR.$PYTHON_REVISION"
 
@@ -71,13 +71,12 @@ compile_python()
 # less than ideal because venv is built into 3.4 and greater, but I 
 # prefer the full the copy of the python interpreter instead of the 
 # the symlinks and this is the most portable across versions
-update_pip_and_virtualenv() {
+pip_manual_install() 
+{
 
 	curl -O https://bootstrap.pypa.io/get-pip.py
 	
 	sudo ${python_install_location}/bin/python${PYTHON_MAJOR}.${PYTHON_MINOR} ./get-pip.py
-
-	sudo ${python_install_location}/bin/python${PYTHON_MAJOR}.${PYTHON_MINOR} -m pip install virtualenv
 
 }
 
@@ -87,7 +86,7 @@ create_virtual_environment()
 	sudo rm -rf ~/.cache/pip
 
 	# make virtualenv
-	${python_install_location}/bin/python${PYTHON_MAJOR}.${PYTHON_MINOR} -m virtualenv --always-copy "${DIRECTORY_FOR_VENV}"
+	${python_install_location}/bin/python${PYTHON_MAJOR}.${PYTHON_MINOR} -m venv --copies "${DIRECTORY_FOR_VENV}"
 
 	source venv/bin/activate
 	ls
@@ -114,12 +113,12 @@ main()
 
 	compile_python
 
-	update_pip_and_virtualenv
+	pip_manual_install
 
 	cd "${PROJECT_DIR}"
 	create_virtual_environment
 
-	remove_custom_python_version
+	#remove_custom_python_version
 }
 
 
