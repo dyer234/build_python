@@ -12,10 +12,11 @@
 #        https://www.riverbankcomputing.com/software/pyqt/download   
 # 2. Once Downloaded, create a folder in the home directory called:
 #        Qt<Major>.<Minor>.<Revision>_Download_Source
-# 3. Adjust the Python Version in the script so that PyQt is installed
+# 3. Move the downloaded files to the new folder. 
+# 4. Adjust the Python Version in the script so that PyQt is installed
 #    properly into the Virtual Environment
-# 4. Adjust QT versions so the file names match appropriately
-# 5. Run the script
+# 5. Adjust QT versions so the file names match appropriately
+# 6. Run the script
 # 
 # Usage Example:
 #     ./install_pyqt.sh
