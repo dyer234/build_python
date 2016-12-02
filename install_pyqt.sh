@@ -1,3 +1,25 @@
+#!/bin/bash
+# This script will install pyqt into a virtual environment.
+#
+# Instructions:
+# 1. Download the needed versions of
+#        Sip
+#        PyQt
+#        Qt
+#    Note about Qt: the opensource version of Qt can be downloaded here:
+#        http://download.qt.io/archive/qt/
+#    Note about Sip and PyQt: Thse can be downloaded here:
+#        https://www.riverbankcomputing.com/software/pyqt/download   
+# 2. Once Downloaded, create a folder in the home directory called:
+#        Qt<Major>.<Minor>.<Revision>_Download_Source
+# 3. Adjust the Python Version in the script so that PyQt is installed
+#    properly into the Virtual Environment
+# 4. Adjust QT versions so the file names match appropriately
+# 5. Run the script
+# 
+# Usage Example:
+#     ./install_pyqt.sh
+
 
 PYTHON_MAJOR="3"
 PYTHON_MINOR="5"
@@ -23,14 +45,6 @@ QT_INSTALL_DIR="${HOME}/Qt${QT_VERSION}"
 
 SIP_HEADER_LOCATION="${DIRECTORY_FOR_VENV}/include"
 SIP_BINARY_LOCATION="${DIRECTORY_FOR_VENV}/bin"
-
-
-
-
-install_qt()
-{
-	echo "Make sure QT is installed"
-}
 
 
 install_sip()
@@ -72,8 +86,6 @@ main()
 {
 	mkdir -p "$WORKING_DIRECTORY"
 	cd "$WORKING_DIRECTORY"
-
-	#install_qt
 
 	install_sip
 
