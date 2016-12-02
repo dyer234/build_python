@@ -67,10 +67,7 @@ compile_python()
 
 # This is only needed for versions of Python less than 3.4 and 2.7.9,
 # but adding it covers the use case for other versions of python 3
-# and will always update pip. Also using virtualenv may be considered
-# less than ideal because venv is built into 3.4 and greater, but I 
-# prefer the full the copy of the python interpreter instead of the 
-# the symlinks and this is the most portable across versions
+# and will always update pip. 
 pip_manual_install() 
 {
 
@@ -94,16 +91,6 @@ create_virtual_environment()
 }
 
 
-# this was only installed to be able to create the virtual environment.
-# Now that the Virtual environment is set up, the custom python 
-# interpreter it was created from can be deleted because we used
-# the virtualenv option to --always-copy
-remove_custom_python_version() {
-
-	sudo rm -rf ${python_install_location} 
-}
-
-
 main()
 {
 	mkdir -p "${WORKING_DIRECTORY}"
@@ -118,7 +105,6 @@ main()
 	cd "${PROJECT_DIR}"
 	create_virtual_environment
 
-	#remove_custom_python_version
 }
 
 
