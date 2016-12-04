@@ -20,10 +20,9 @@
 # a specific version of Python, its always because its going to for a 
 # preexisting project.
 
-
-PYTHON_MAJOR="3"
-PYTHON_MINOR="5"
-PYTHON_REVISION="2"
+PYTHON_MAJOR="2"
+PYTHON_MINOR="7"
+PYTHON_REVISION="6"
 
 VERSION="$PYTHON_MAJOR.$PYTHON_MINOR.$PYTHON_REVISION"
 
@@ -74,7 +73,6 @@ pip_manual_install()
 	curl -O https://bootstrap.pypa.io/get-pip.py
 	
 	sudo ${python_install_location}/bin/python${PYTHON_MAJOR}.${PYTHON_MINOR} ./get-pip.py
-
 }
 
 
@@ -82,8 +80,24 @@ create_virtual_environment()
 {
 	sudo rm -rf ~/.cache/pip
 
+	local venv="venv"
+	local venv_args="--copies"
+
+	# The venv module is only availabe in python3.3 and above, for anything 
+	# else we need to use the virtualenv module. This always requires pip 
+	# installing virtualenv into the custom python interpreter.
+	if [ $PYTHON_MAJOR = "2" -o $PYTHON_MAJOR -eq "3" -a $PYTHON_MINOR -lt "3" ]
+		then
+			venv="virtualenv"
+			copy_command="--always-copy"
+
+			echo "using virtualenv"
+			sudo ${python_install_location}/bin/python${PYTHON_MAJOR}.${PYTHON_MINOR} -m pip install ${venv}
+	fi
+
+
 	# make virtualenv
-	${python_install_location}/bin/python${PYTHON_MAJOR}.${PYTHON_MINOR} -m venv --copies "${DIRECTORY_FOR_VENV}"
+	${python_install_location}/bin/python${PYTHON_MAJOR}.${PYTHON_MINOR} -m ${venv} ${venv_args} "${DIRECTORY_FOR_VENV}"
 
 	source venv/bin/activate
 	ls
