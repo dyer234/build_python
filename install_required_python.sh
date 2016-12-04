@@ -20,9 +20,9 @@
 # a specific version of Python, its always because its going to for a 
 # preexisting project.
 
-PYTHON_MAJOR="2"
-PYTHON_MINOR="7"
-PYTHON_REVISION="6"
+PYTHON_MAJOR="3"
+PYTHON_MINOR="5"
+PYTHON_REVISION="2"
 
 VERSION="$PYTHON_MAJOR.$PYTHON_MINOR.$PYTHON_REVISION"
 
