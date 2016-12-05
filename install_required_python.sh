@@ -1,4 +1,4 @@
-# A simple script to compile python on ubuntu.
+# A script to compile python on ubuntu.
 # It downloads the source directly from the python website and saves it to
 # a working directory. The working directory can be deleted after the script
 # was successful.
@@ -21,12 +21,16 @@
 # preexisting project.
 
 PYTHON_MAJOR="3"
-PYTHON_MINOR="5"
-PYTHON_REVISION="2"
+PYTHON_MINOR="3"
+PYTHON_REVISION="5"
 
-VERSION="$PYTHON_MAJOR.$PYTHON_MINOR.$PYTHON_REVISION"
+# This is only needed to be set for release candidates. For all others
+# this should be an empty string.
+PYTHON_RC_NUMBER=""
 
-PYTHON_NAME="Python-$VERSION"
+VERSION="${PYTHON_MAJOR}.${PYTHON_MINOR}.${PYTHON_REVISION}"
+
+PYTHON_NAME="Python-${VERSION}${PYTHON_RC_NUMBER}"
 
 PROJECT_DIR=`pwd`
 DIRECTORY_FOR_VENV="${PROJECT_DIR}/venv"
@@ -34,16 +38,24 @@ WORKING_DIRECTORY="${PROJECT_DIR}/WORK_TEMP"
 PYTHON_BINARY="${DIRECTORY_FOR_VENV}/bin/python"
 
 
-python_install_location="${HOME}/PythonVersions"
+python_install_location="${HOME}/PythonVersions/${VERSION}${PYTHON_RC_NUMBER}"
 
-echo "Installing Python Version:"
-echo $PYTHON_NAME
-echo ""
+echo "Installing Python Version: $PYTHON_NAME"
 
 
 download_python()
 {
-	curl -O "https://www.python.org/ftp/python/$VERSION/$PYTHON_NAME.tgz"
+
+	curl --fail -O "https://www.python.org/ftp/python/$VERSION/$PYTHON_NAME.tgz"
+
+	# Handle the situation where we get a 404 not found error because the 
+	# version of python that was asked for does not exist
+	if [ $? -ne 0 ]
+		then
+			echo "This is not a version of Python"
+			exit
+	fi
+
 }
 
 
@@ -86,12 +98,12 @@ create_virtual_environment()
 	# The venv module is only availabe in python3.3 and above, for anything 
 	# else we need to use the virtualenv module. This always requires pip 
 	# installing virtualenv into the custom python interpreter.
-	if [ $PYTHON_MAJOR = "2" -o $PYTHON_MAJOR -eq "3" -a $PYTHON_MINOR -lt "3" ]
+	if [ $PYTHON_MAJOR = "2" -o $PYTHON_MAJOR -eq "3" -a $PYTHON_MINOR -lt "4" ]
 		then
 			venv="virtualenv"
-			copy_command="--always-copy"
+			venv_args="--always-copy"
 
-			echo "using virtualenv"
+			echo "Using virtualenv because venv is not builtin to ${PYTHON_NAME}"
 			sudo ${python_install_location}/bin/python${PYTHON_MAJOR}.${PYTHON_MINOR} -m pip install ${venv}
 	fi
 
@@ -99,9 +111,18 @@ create_virtual_environment()
 	# make virtualenv
 	${python_install_location}/bin/python${PYTHON_MAJOR}.${PYTHON_MINOR} -m ${venv} ${venv_args} "${DIRECTORY_FOR_VENV}"
 
-	source venv/bin/activate
-	ls
-	python --version
+
+	# Print Virtual Environemnt info if there is a folder that it could be in
+	if [ -d "${DIRECTORY_FOR_VENV}" ]
+		then
+			source venv/bin/activate
+			ls
+			
+			echo "Version of Virtual Environment:"
+			python --version
+	else
+		echo "Virtual Environment was not created"
+	fi
 }
 
 
@@ -110,9 +131,17 @@ main()
 	mkdir -p "${WORKING_DIRECTORY}"
 	cd "${WORKING_DIRECTORY}"
 
-	download_python
+	# Only download and compile if its not already installed
+	if [ ! -d ${python_install_location} ]
+		then
 
-	compile_python
+			download_python
+
+			compile_python
+
+	else
+		echo "${PYTHON_NAME} already installed... skipping installation"
+	fi
 
 	pip_manual_install
 
