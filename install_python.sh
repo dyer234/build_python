@@ -21,8 +21,8 @@
 # preexisting project.
 
 PYTHON_MAJOR="3"
-PYTHON_MINOR="3"
-PYTHON_REVISION="5"
+PYTHON_MINOR="5"
+PYTHON_REVISION="2"
 
 # This is only needed to be set for release candidates. For all others
 # this should be an empty string.
