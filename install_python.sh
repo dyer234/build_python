@@ -10,7 +10,7 @@
 # --prefix variable to /usr/local.
 #
 # Usage:
-#     ./install_required_python.sh
+#     ./install_python.sh
 #
 # To change the version of Python that will be downloaded, just modify the
 # Python variables for major, minor, and revision for the version that is
@@ -43,9 +43,15 @@ python_install_location="${HOME}/PythonVersions/${VERSION}${PYTHON_RC_NUMBER}"
 echo "Installing Python Version: $PYTHON_NAME"
 
 
+install_dependencies()
+{
+	# install dependencies
+	sudo apt-get install -y curl build-essential libssl-dev openssl libsqlite3-dev tcl-dev
+}
+
+
 download_python()
 {
-
 	curl --fail -O "https://www.python.org/ftp/python/$VERSION/$PYTHON_NAME.tgz"
 
 	# Handle the situation where we get a 404 not found error because the 
@@ -61,10 +67,6 @@ download_python()
 
 compile_python()
 {
-	# install dependencies
-	sudo apt-get install build-essential
-	sudo apt-get install libssl-dev openssl libsqlite3-dev
-
 	# compile python
 	tar -xzvf "$PYTHON_NAME.tgz"
 	cd $PYTHON_NAME
@@ -81,10 +83,14 @@ compile_python()
 # and will always update pip. 
 pip_manual_install() 
 {
-
-	curl -O https://bootstrap.pypa.io/get-pip.py
-	
-	sudo ${python_install_location}/bin/python${PYTHON_MAJOR}.${PYTHON_MINOR} ./get-pip.py
+	if [ $PYTHON_MAJOR = "2" -a $PYTHON_MINOR -eq 7 -a $PYTHON_REVISION -lt 9 \
+		-o $PYTHON_MAJOR -eq "3" -a $PYTHON_MINOR -lt "4" ]
+		then
+			curl -O https://bootstrap.pypa.io/get-pip.py
+			sudo -H ${python_install_location}/bin/python${PYTHON_MAJOR}.${PYTHON_MINOR} ./get-pip.py
+	else
+			sudo -H ${python_install_location}/bin/python${PYTHON_MAJOR}.${PYTHON_MINOR} -m pip install --upgrade pip
+	fi
 }
 
 
@@ -104,7 +110,7 @@ create_virtual_environment()
 			venv_args="--always-copy"
 
 			echo "Using virtualenv because venv is not builtin to ${PYTHON_NAME}"
-			sudo ${python_install_location}/bin/python${PYTHON_MAJOR}.${PYTHON_MINOR} -m pip install ${venv}
+			sudo -H ${python_install_location}/bin/python${PYTHON_MAJOR}.${PYTHON_MINOR} -m pip install ${venv}
 	fi
 
 
@@ -134,6 +140,7 @@ main()
 	# Only download and compile if its not already installed
 	if [ ! -d ${python_install_location} ]
 		then
+			install_dependencies
 
 			download_python
 
