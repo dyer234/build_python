@@ -23,7 +23,7 @@
 # This script also creates a virtual environment, because anytime I need
 # a specific version of Python, its always because its going to for a 
 # preexisting project.
-
+    
 PYTHON_MAJOR="3"
 PYTHON_MINOR="5"
 PYTHON_REVISION="2"
@@ -73,7 +73,10 @@ PYTHON_BINARY="${DIRECTORY_FOR_VENV}/bin/python"
 
 python_install_location="${HOME}/PythonVersions/${VERSION}${PYTHON_RC_NUMBER}"
 
-echo "Installing Python Version: $PYTHON_NAME"
+HIGHLIGHT='\033[0;36m'
+NO_HIGHLIGHT='\033[0m' # No Color
+
+echo -e $HIGHLIGHT"Installing Python Version: $PYTHON_NAME$NO_HIGHLIGHT"
 
 
 install_dependencies()
@@ -92,7 +95,7 @@ download_python()
     # version of python that was asked for does not exist
     if [ $? -ne 0 ]
         then
-            echo "This is not a version of Python"
+            echo -e $HIGHLIGHT"This is not a version of Python"$NO_HIGHLIGHT
             exit
     fi
 }
@@ -111,12 +114,12 @@ compile_python()
  }
 
 
-# This is only needed for versions of Python less than 3.4 and 2.7.9,
-# but adding it covers the use case for other versions of python 3
-# and will always update pip. 
+# This checks if there is a file called pip or pip3 inside the new python
+# installation directory, if it is missing then pip is manually downloaded
+# and installed.
 pip_manual_install() 
 {
-    if [ -f "${python_install_location}/bin/pip" ]
+    if [ -f "${python_install_location}/bin/pip" -o -f "${python_install_location}/bin/pip3" ]
         then
             sudo -H ${python_install_location}/bin/python${PYTHON_MAJOR}.${PYTHON_MINOR} -m pip install --upgrade pip			
     else
@@ -141,7 +144,7 @@ create_virtual_environment()
             venv="virtualenv"
             venv_args="--always-copy"
 
-            echo "Using virtualenv because venv is not builtin to ${PYTHON_NAME}"
+            echo -e $HIGHLIGHT"Using virtualenv because venv is not builtin to ${PYTHON_NAME}"$NO_HIGHLIGHT
             sudo -H ${python_install_location}/bin/python${PYTHON_MAJOR}.${PYTHON_MINOR} -m pip install ${venv}
     fi
 
@@ -156,10 +159,11 @@ create_virtual_environment()
             source venv/bin/activate
             ls
 
-            echo "Version of Virtual Environment:"
+            echo -e $HIGHLIGHT"Version of Virtual Environment:"
             python --version
+            echo -e $NO_HIGHLIGHT
     else
-        echo "Virtual Environment was not created"
+        echo -e $HIGHLIGHT"Virtual Environment was not created"$NO_HIGHLIGHT
     fi
 }
 
@@ -179,7 +183,7 @@ main()
             compile_python
 
     else
-        echo "${PYTHON_NAME} already installed... skipping installation"
+        echo -e $HIGHLIGHT"${PYTHON_NAME} already installed... skipping installation"$NO_HIGHLIGHT
     fi
 
     pip_manual_install
