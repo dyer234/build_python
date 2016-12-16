@@ -12,6 +12,10 @@
 # Usage:
 #     ./install_python.sh
 #
+#     .install_python.sh --major 3 --minor 5 --revision 2
+#
+#     ./install_python.sh --major 3 --minor 6 --revision 0 --rc rc1	
+#
 # To change the version of Python that will be downloaded, just modify the
 # Python variables for major, minor, and revision for the version that is
 # needed.
@@ -27,6 +31,35 @@ PYTHON_REVISION="2"
 # This is only needed to be set for release candidates. For all others
 # this should be an empty string.
 PYTHON_RC_NUMBER=""
+
+# Handle any command line arguments
+while [[ $# -gt 1 ]]
+do
+	key="$1"
+	case $key in
+		--major)
+		PYTHON_MAJOR="$2"
+		shift # past argument
+		;;
+		--minor)
+		PYTHON_MINOR="$2"
+		shift # past argument
+		;;
+		--revision)
+		PYTHON_REVISION="$2"
+		shift # past argument
+		;;	
+		--rc)
+		PYTHON_RC_NUMBER="$2"
+		shift # past argument
+		;;	     
+		*)
+		# unknown option
+		;;
+	esac
+	shift # past argument or value
+done
+
 
 VERSION="${PYTHON_MAJOR}.${PYTHON_MINOR}.${PYTHON_REVISION}"
 
@@ -45,36 +78,36 @@ echo "Installing Python Version: $PYTHON_NAME"
 
 install_dependencies()
 {
-	# install dependencies
-	sudo apt-get install -y curl build-essential libssl-dev openssl libsqlite3-dev tcl-dev
+    # install dependencies
+    sudo apt-get install -y curl build-essential libssl-dev openssl \
+                            libsqlite3-dev tcl-dev
 }
 
 
 download_python()
 {
-	curl --fail -O "https://www.python.org/ftp/python/$VERSION/$PYTHON_NAME.tgz"
+    curl --fail -O "https://www.python.org/ftp/python/$VERSION/$PYTHON_NAME.tgz"
 
-	# Handle the situation where we get a 404 not found error because the 
-	# version of python that was asked for does not exist
-	if [ $? -ne 0 ]
-		then
-			echo "This is not a version of Python"
-			exit
-	fi
-
+    # Handle the situation where we get a 404 not found error because the 
+    # version of python that was asked for does not exist
+    if [ $? -ne 0 ]
+        then
+            echo "This is not a version of Python"
+            exit
+    fi
 }
 
 
 compile_python()
 {
-	# compile python
-	tar -xzvf "$PYTHON_NAME.tgz"
-	cd $PYTHON_NAME
-	./configure --prefix="${python_install_location}"
+    # compile python
+    tar -xzvf "$PYTHON_NAME.tgz"
+    cd $PYTHON_NAME
+    ./configure --prefix="${python_install_location}"
 
-	make
-	sudo make install
-	cd ../
+    make
+    sudo make install
+    cd ../
  }
 
 
@@ -83,78 +116,76 @@ compile_python()
 # and will always update pip. 
 pip_manual_install() 
 {
-	if [ $PYTHON_MAJOR = "2" -a $PYTHON_MINOR -eq 7 -a $PYTHON_REVISION -lt 9 \
-		-o $PYTHON_MAJOR -eq "3" -a $PYTHON_MINOR -lt "4" ]
-		then
-			curl -O https://bootstrap.pypa.io/get-pip.py
-			sudo -H ${python_install_location}/bin/python${PYTHON_MAJOR}.${PYTHON_MINOR} ./get-pip.py
-	else
-			sudo -H ${python_install_location}/bin/python${PYTHON_MAJOR}.${PYTHON_MINOR} -m pip install --upgrade pip
-	fi
+    if [ -f "${python_install_location}/bin/pip" ]
+        then
+            sudo -H ${python_install_location}/bin/python${PYTHON_MAJOR}.${PYTHON_MINOR} -m pip install --upgrade pip			
+    else
+            curl -O https://bootstrap.pypa.io/get-pip.py
+            sudo -H ${python_install_location}/bin/python${PYTHON_MAJOR}.${PYTHON_MINOR} ./get-pip.py
+    fi
 }
 
 
 create_virtual_environment()
 {
-	sudo rm -rf ~/.cache/pip
+    sudo rm -rf ~/.cache/pip
 
-	local venv="venv"
-	local venv_args="--copies"
+    local venv="venv"
+    local venv_args="--copies"
 
-	# The venv module is only availabe in python3.3 and above, for anything 
-	# else we need to use the virtualenv module. This always requires pip 
-	# installing virtualenv into the custom python interpreter.
-	if [ $PYTHON_MAJOR = "2" -o $PYTHON_MAJOR -eq "3" -a $PYTHON_MINOR -lt "4" ]
-		then
-			venv="virtualenv"
-			venv_args="--always-copy"
+    # The venv module is only availabe in python3.3 and above, for anything 
+    # else we need to use the virtualenv module. This always requires pip 
+    # installing virtualenv into the custom python interpreter.
+    if [ $PYTHON_MAJOR = "2" -o $PYTHON_MAJOR -eq "3" -a $PYTHON_MINOR -lt "4" ]
+        then
+            venv="virtualenv"
+            venv_args="--always-copy"
 
-			echo "Using virtualenv because venv is not builtin to ${PYTHON_NAME}"
-			sudo -H ${python_install_location}/bin/python${PYTHON_MAJOR}.${PYTHON_MINOR} -m pip install ${venv}
-	fi
-
-
-	# make virtualenv
-	${python_install_location}/bin/python${PYTHON_MAJOR}.${PYTHON_MINOR} -m ${venv} ${venv_args} "${DIRECTORY_FOR_VENV}"
+            echo "Using virtualenv because venv is not builtin to ${PYTHON_NAME}"
+            sudo -H ${python_install_location}/bin/python${PYTHON_MAJOR}.${PYTHON_MINOR} -m pip install ${venv}
+    fi
 
 
-	# Print Virtual Environemnt info if there is a folder that it could be in
-	if [ -d "${DIRECTORY_FOR_VENV}" ]
-		then
-			source venv/bin/activate
-			ls
-			
-			echo "Version of Virtual Environment:"
-			python --version
-	else
-		echo "Virtual Environment was not created"
-	fi
+    # make virtualenv
+    ${python_install_location}/bin/python${PYTHON_MAJOR}.${PYTHON_MINOR} -m ${venv} ${venv_args} "${DIRECTORY_FOR_VENV}"
+
+
+    # Print Virtual Environemnt info if there is a folder that it could be in
+    if [ -d "${DIRECTORY_FOR_VENV}" ]
+        then
+            source venv/bin/activate
+            ls
+
+            echo "Version of Virtual Environment:"
+            python --version
+    else
+        echo "Virtual Environment was not created"
+    fi
 }
 
 
 main()
 {
-	mkdir -p "${WORKING_DIRECTORY}"
-	cd "${WORKING_DIRECTORY}"
+    mkdir -p "${WORKING_DIRECTORY}"
+    cd "${WORKING_DIRECTORY}"
 
-	# Only download and compile if its not already installed
-	if [ ! -d ${python_install_location} ]
-		then
-			install_dependencies
+    # Only download and compile if its not already installed
+    if [ ! -d ${python_install_location} ]
+        then
+            install_dependencies
 
-			download_python
+            download_python
 
-			compile_python
+            compile_python
 
-	else
-		echo "${PYTHON_NAME} already installed... skipping installation"
-	fi
+    else
+        echo "${PYTHON_NAME} already installed... skipping installation"
+    fi
 
-	pip_manual_install
+    pip_manual_install
 
-	cd "${PROJECT_DIR}"
-	create_virtual_environment
-
+    cd "${PROJECT_DIR}"
+    create_virtual_environment
 }
 
 
