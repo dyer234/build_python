@@ -71,7 +71,7 @@ WORKING_DIRECTORY="${PROJECT_DIR}/WORK_TEMP"
 PYTHON_BINARY="${DIRECTORY_FOR_VENV}/bin/python"
 
 
-python_install_location="${HOME}/PythonVersions/${VERSION}${PYTHON_RC_NUMBER}"
+python_install_location="/opt/PythonVersions/${VERSION}${PYTHON_RC_NUMBER}"
 
 HIGHLIGHT='\033[0;36m'
 NO_HIGHLIGHT='\033[0m' # No Color
