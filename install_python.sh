@@ -1,4 +1,4 @@
-# A script to compile python on ubuntu.
+# A script to compile python on ubuntu and centos
 # It downloads the source directly from the python website and saves it to
 # a working directory. The working directory can be deleted after the script
 # was successful.
@@ -81,9 +81,22 @@ echo -e $HIGHLIGHT"Installing Python Version: $PYTHON_NAME$NO_HIGHLIGHT"
 
 install_dependencies()
 {
-    # install dependencies
-    sudo apt-get install -y curl build-essential libssl-dev openssl \
+    
+    echo "Installing Dependencies"
+    if [ -f /usr/bin/yum ]
+    then
+        echo "Installing CentOS tools"
+        sudo yum groupinstall -y 'development tools'
+        sudo yum install -y zlib-devel.x86_64 openssl-devel.x86_64 sqlite-devel.x86_64 \
+                       bzip2-devel.x86_64 tcl-devel.x86_64 
+
+    elif [ -f /usr/bin/apt-get ]
+    then
+        echo "Installing Ubuntu/Debian tools"
+        sudo apt-get install -y curl build-essential libssl-dev openssl \
                             libsqlite3-dev tcl-dev
+    fi
+
 }
 
 
